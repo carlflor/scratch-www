@@ -70,9 +70,8 @@ var Search = injectIntl(React.createClass({
         }, function (err, body) {
             var loadedSoFar = this.state.loaded;
             Array.prototype.push.apply(loadedSoFar, body);
-            this.setState({loaded: loadedSoFar});
             var currentOffset = this.state.offset + this.props.loadNumber;
-            this.setState({offset: currentOffset});
+            this.setState({loaded: loadedSoFar, offset: currentOffset});
         }.bind(this));
     },
     onSearchSubmit: function (formData) {
@@ -96,6 +95,31 @@ var Search = injectIntl(React.createClass({
         }
         return allTab;
     },
+    getProjectBox: function () {
+        var results = <Grid items={this.state.loaded}
+                            itemType={this.props.tab}
+                            cards={true}
+                            showAvatar={true}
+                            showLoves={false}
+                            showFavorites={false}
+                            showViews={false} />;
+        var searchAction;
+        if (this.props.searchTerm === '') {
+            searchAction = <h1 className="title-banner-h1"><FormattedMessage id="general.searchPrompt" /></h1>;
+        } else if (this.state.loaded.length === 0 && this.state.offset !== 0) {
+            searchAction = <h1 className="title-banner-h1"><FormattedMessage id="general.searchEmpty" /></h1>;
+        } else if (this.state.loaded.length >= this.state.offset && this.state.offset !== 0) {
+            searchAction = <Button onClick={this.getSearchMore} className="white">
+                              <FormattedMessage id='general.loadMore' />
+                            </Button>;
+        }
+        return (
+          <div id='projectBox' key='projectBox'>
+            {results}
+            {searchAction}
+          </div>
+        );
+    },
     render: function () {
         return (
             <div>
@@ -109,18 +133,7 @@ var Search = injectIntl(React.createClass({
                             {this.getTab('projects')}
                             {this.getTab('studios')}
                         </Tabs>
-                        <div id='projectBox' key='projectBox'>
-                        <Grid items={this.state.loaded}
-                              itemType={this.props.tab}
-                              cards={true}
-                              showAvatar={true}
-                              showLoves={false}
-                              showFavorites={false}
-                              showViews={false} />
-                         <Button onClick={this.getSearchMore} className="white">
-                            <FormattedMessage id='general.loadMore' />
-                        </Button>
-                        </div>
+                        {this.getProjectBox()}
                 </div>
             </div>
         );
